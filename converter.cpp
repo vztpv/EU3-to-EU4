@@ -228,7 +228,13 @@ int main(void)
 	/// main work.
 	clau_parser::UserType eu3save;
 
-	clau_parser::LoadData::LoadDataFromFile(L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Great_Britain1818_12_17.eu3", eu3save);
+	clau_parser::LoadData::LoadDataFromFile(
+		//L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Manchu1912_12_08.eu3"
+		L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Great_Britain1818_12_17.eu3"
+		, eu3save);
+
+
+	//clau_parser::LoadData::LoadDataFromFile(L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Great_Britain1818_12_17.eu3", eu3save);
 
 
 
@@ -354,6 +360,19 @@ pass = true;
 					// owner, controller are eu4 contry tag.
 				//	std::string capital = GetEU4Country(Remove(eu3_province->GetItem("capital")[0].Get()), x, y);
 
+
+					if (!eu3_province->GetItem("citysize").empty() && !eu3_province->GetItem("citysize").empty() && !eu3_province->GetItem("manpower").empty()) {
+						if (!eu4_province.GetItemIdx("base_tax").empty()) {
+							eu4_province.SetItem("base_tax", std::to_string((int)(std::stod(eu3_province->GetItem("base_tax")[0].Get()) + std::stod(eu3_province->GetItem("citysize")[0].Get()) / 100000 + 1)));
+						}
+						if (!eu4_province.GetItemIdx("base_production").empty()) {
+							eu4_province.SetItem("base_production", std::to_string((int)(std::stod(eu3_province->GetItem("citysize")[0].Get()) / 100000 + std::stod(eu3_province->GetItem("citysize")[0].Get()) / 100000 + 1)));
+						}
+						if (!eu4_province.GetItemIdx("base_manpower").empty()) {
+							eu4_province.SetItem("base_manpower", std::to_string((int)(std::stod(eu3_province->GetItem("manpower")[0].Get()) + std::stod(eu3_province->GetItem("citysize")[0].Get()) / 100000 + 1)));
+						}
+					}
+
 					if (!eu3_province->GetItemIdx("owner").empty()) {
 
 					//	eu4_province.AddItem("pass", "true");
@@ -369,7 +388,13 @@ pass = true;
 							chk = true;
 							
 							eu4_province.GetItemList(eu4_province.GetItemIdx("owner")[0]).Set(0, owner);
-							eu4_province.AddItem("add_core", owner);
+
+							eu4_province.AddUserTypeItem(clau_parser::UserType("1444.11.11"));
+
+							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", owner);
+							
+
+							eu4_province.AddItem("add_core", owner); // add_territorial_core
 							if (eu4_province.GetItem("is_city").empty()) {
 								eu4_province.AddItem("is_city", "yes");
 							}
@@ -462,7 +487,16 @@ pass = true;
 				auto& province = eu4_provinces[std::to_wstring(std::stoi(y.Get()))]; // eu4_province
 
 				if (province.GetItem("owner").empty()) {
+					
+					province.AddUserTypeItem(clau_parser::UserType("1444.11.11"));
+
+					province.GetUserTypeList(province.GetUserTypeListSize() - 1)->AddItem("owner", winner);
+					province.GetUserTypeList(province.GetUserTypeListSize() - 1)->AddItem("controller", winner);
+
+
+
 					province.AddItem("owner", winner);
+					province.AddItem("add_core", winner); // add_territorial_core
 					count++;
 					
 					if (province.GetItem("is_city").empty()) {
@@ -472,6 +506,7 @@ pass = true;
 						province.SetItem("is_city", "yes");
 					}
 				}
+
 				if (province.GetItem("controller").empty()) {
 					province.AddItem("controller", winner);
 				}
