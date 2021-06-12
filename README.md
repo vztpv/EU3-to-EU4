@@ -4,5 +4,7 @@ for EU3 -> EU4, (EU4 -> VIC3) ?
 
 # Goal
     1. Province Mapping. 
-    2. Country Mapping. 
-    
+        - owner
+        - controller
+        - 1444.11.11 = { owner = target controller = target }
+        
