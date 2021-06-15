@@ -8,6 +8,8 @@ for EU3 -> EU4, (EU4 -> VIC3) ?
         - controller
         - 1444.11.11 = { owner = target controller = target }
         - winner become owner and contrlloer in empty province of area (winner contains).
+        
+        - country matching issue? - need to check country_matching.txt ?
     2. Revolt - To Do.
     3. Religion,  - To Do.
     
