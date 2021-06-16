@@ -1,5 +1,5 @@
 # EU3-to-EU4
-My Experimental Project.. EU3 -> EU4 (using ParadoxGameConverters ) ?
+My Experimental Project.. EU3 -> EU4 (using ParadoxGameConverters eu3 to vic2, eur4 to vic2 ) ?
 for EU3 -> EU4, (EU4 -> VIC3) ?
 
 # TODO AND DONE
