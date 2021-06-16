@@ -12,6 +12,7 @@ for EU3 -> EU4, (EU4 -> VIC3) ?
         # todo
         - country matching issue? - need to check country_matching.txt ?
         - states and territories
+            - 수도가 위치한 대륙 - state, 그외 - territories..? 
     2. Revolt - To Do.
     3. Religion,  - To Do.
     
