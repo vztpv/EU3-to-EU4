@@ -3618,7 +3618,7 @@ namespace clau_parser {
 				if (outFile.fail()) { return false; }
 			}
 			else {
-				outFile.open(fileName, std::ios::app);
+				outFile.open(fileName, std::ios::binary | std::ios::app);
 				if (outFile.fail()) { return false; }
 
 				outFile << "\n";
@@ -3640,7 +3640,7 @@ namespace clau_parser {
 				if (outFile.fail()) { return false; }
 			}
 			else {
-				outFile.open(fileName, std::ios::app);
+				outFile.open(fileName, std::ios::binary | std::ios::app);
 				if (outFile.fail()) { return false; }
 
 				outFile << "\n";
