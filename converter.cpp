@@ -699,9 +699,9 @@ int main(void)
 							eu4_province.AddUserTypeItem(clau_parser::UserType("1510.1.1"));
 
 							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", owner);
-							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_tax", owner);
-							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_production", owner);
-							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_manpower", owner);
+							//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_tax", "3");
+							//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_production", "3");
+							//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_manpower", "3");
 
 
 							eu4_province.AddItem("add_core", owner); // add_territorial_core
@@ -996,6 +996,11 @@ int main(void)
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("controller", winner);
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("religion", winner_religion);
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("culture", winner_culture);
+
+					//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_tax", "3");
+					//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_production", "3");
+					//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_manpower", "3");
+
 
 					eu4_province.AddItem("owner", winner);
 					eu4_province.AddItem("add_core", winner); // add_territorial_core
