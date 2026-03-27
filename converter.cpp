@@ -1,5 +1,4 @@
-
-#include "mimalloc-new-delete.h"
+//#include "mimalloc-new-delete.h"
 
 #include <iostream>
 #include <fstream>
@@ -56,10 +55,10 @@ std::map<std::string, std::string> func2(clau_parser::UserType* ut,
 	ut = ut->GetUserTypeItem(version)[0];
 
 	for (int i = 0; i < ut->GetUserTypeListSize(); ++i) { // enter 'link = { }'
-		
+
 		std::string right_str;
 		std::vector<std::string> left_vec;
-		
+
 		for (int j = 0; j < ut->GetUserTypeList(i)->GetItemListSize(); ++j) {
 			auto x = ut->GetUserTypeList(i)->GetItemList(j);
 			if (x.GetName() == left) {
@@ -111,7 +110,7 @@ std::map<std::string, std::string> func3(clau_parser::UserType* ut,
 
 std::map<std::string, std::vector<std::string>> chk_merge_nation(std::map<std::string, std::vector<std::string>>& _map, clau_parser::UserType* merge_nation, std::map<std::string, std::vector<std::string>>& eu3_vic2) {
 	auto x = merge_nation->GetUserTypeList(0);
-	
+
 	_map = eu3_vic2;
 
 	for (int i = 0; i < x->GetUserTypeListSize(); ++i) {
@@ -143,11 +142,17 @@ inline std::string GetEU4Country(const std::string& eu3_country, const std::map<
 		auto y = eu3_vic2.at(eu3_country);
 		std::vector<std::string> vec;
 		for (auto _ : y) {
-			auto k = vic2_eu4.at(_);
+			auto k = vic2_eu4.find(_);
 
-			for (auto _ : k) {
-				if (!_.empty()) {
-					vec.push_back(_);
+			if (k == vic2_eu4.end()) {
+				continue;
+			}
+
+			for (auto _ = k; k != vic2_eu4.end(); ++k) {
+				if (!_->second.empty()) {
+					for (auto x : _->second) {
+						vec.push_back(x);
+					}
 				}
 			}
 		}
@@ -157,6 +162,7 @@ inline std::string GetEU4Country(const std::string& eu3_country, const std::map<
 		}
 	}
 	catch (...) {
+		std::cout << "map error \n";
 	}
 
 
@@ -172,16 +178,13 @@ inline std::string GetEU3Province(const std::string& eu4_country, const std::map
 	catch (...) {
 	}
 
-	return x; 
+	return x;
 }
 
 inline std::string GetEU3Province2(const std::string& eu4_country, const std::map<std::string, std::string>& eu4_vic2, const  std::map<std::string, std::string>& vic2_eu3) {
 	std::string x;
 
 	try {
-		
-
-
 		x = vic2_eu3.at(eu4_vic2.at(eu4_country));
 	}
 	catch (...) {
@@ -201,7 +204,7 @@ int main(void)
 
 	clau_parser::UserType area;
 
-	clau_parser::LoadData::LoadDataFromFile(L"area.txt", area);
+	clau_parser::LoadData::LoadDataFromFile(L"eu4/area.txt", area);
 
 	clau_parser::UserType merge_nations_eu3_vic2;
 	int count = 0;
@@ -209,15 +212,14 @@ int main(void)
 	clau_parser::UserType eu3_vic2_country;
 	clau_parser::UserType eu4_vic2_country;
 
-	clau_parser::LoadData::LoadDataFromFile(L"merge_nations_eu3_vic2.txt", merge_nations_eu3_vic2);
+	clau_parser::LoadData::LoadDataFromFile(L"eu3/merge_nations.txt", merge_nations_eu3_vic2);
 
-
-	clau_parser::LoadData::LoadDataFromFile(L"country_mappings_eu3_vic2.txt", eu3_vic2_country);
-	clau_parser::LoadData::LoadDataFromFile(L"country_mappings_eu4_vic2.txt", eu4_vic2_country);
+	clau_parser::LoadData::LoadDataFromFile(L"eu3/country_mappings.txt", eu3_vic2_country);
+	clau_parser::LoadData::LoadDataFromFile(L"eu4/country_mappings.txt", eu4_vic2_country);
 
 	std::map<std::string, std::vector<std::string>> eu3_vic_ct;
 	{
-		auto x = func(&eu3_vic2_country, "eu3", "vic");
+		auto x = func(eu3_vic2_country.GetUserTypeList(0), "eu3", "vic");
 
 		eu3_vic_ct = chk_merge_nation(eu3_vic_ct, &merge_nations_eu3_vic2, x);
 	}
@@ -227,21 +229,20 @@ int main(void)
 	clau_parser::UserType eu3_vic2_province;
 	clau_parser::UserType eu4_vic2_province;
 
-	clau_parser::LoadData::LoadDataFromFile(L"province_mappings_eu3_vic2.txt", eu3_vic2_province);
-	clau_parser::LoadData::LoadDataFromFile(L"province_mappings_eu4_vic2.txt", eu4_vic2_province);
+	clau_parser::LoadData::LoadDataFromFile(L"eu3/province_mappings.txt", eu3_vic2_province);
+	clau_parser::LoadData::LoadDataFromFile(L"eu4/province_mappings.txt", eu4_vic2_province);
 
 	clau_parser::UserType eu3_vic2_religion;
 	clau_parser::UserType eu4_vic2_religion;
 
-	clau_parser::LoadData::LoadDataFromFile(L"religionMap.txt", eu3_vic2_religion);
-	clau_parser::LoadData::LoadDataFromFile(L"religion_map.txt", eu4_vic2_religion);
-
+	clau_parser::LoadData::LoadDataFromFile(L"eu3/religionMap.txt", eu3_vic2_religion);
+	clau_parser::LoadData::LoadDataFromFile(L"eu4/religion_map.txt", eu4_vic2_religion);
 
 	clau_parser::UserType eu3_vic2_culture;
 	clau_parser::UserType eu4_vic2_culture;
 
-	clau_parser::LoadData::LoadDataFromFile(L"cultureMap.txt", eu3_vic2_culture);
-	clau_parser::LoadData::LoadDataFromFile(L"culture_map.txt", eu4_vic2_culture);
+	clau_parser::LoadData::LoadDataFromFile(L"eu3/cultureMap.txt", eu3_vic2_culture);
+	clau_parser::LoadData::LoadDataFromFile(L"eu4/culture_map.txt", eu4_vic2_culture);
 
 
 
@@ -249,12 +250,8 @@ int main(void)
 	clau_parser::UserType eu3save;
 
 	clau_parser::LoadData::LoadDataFromFile(
-		//L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Manchu1912_12_08.eu3"
-		L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Great_Britain2402_08_16.eu3"
+		L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/input.eu3"
 		, eu3save);
-
-
-	//clau_parser::LoadData::LoadDataFromFile(L"C:/Program Files (x86)/Steam/steamapps/common/Europa Universalis III - Complete/save games/Great_Britain1818_12_17.eu3", eu3save);
 
 	std::map<std::wstring, clau_parser::UserType> eu4_provinces;
 	std::map<std::wstring, clau_parser::UserType> eu4_countries;
@@ -265,9 +262,9 @@ int main(void)
 	std::map<std::wstring, std::string> eu4_countries_primary_religion; // primary_religion
 
 	{
-		for (auto& p : std::filesystem::directory_iterator("provinces")) { // /provinces/
+		for (auto& p : std::filesystem::directory_iterator("eu4/history/provinces")) { // /provinces/
 
-			//std::cout << p.path() << "\n";
+			std::cout << p.path() << "\n";
 
 			clau_parser::UserType eu4_province;
 
@@ -297,7 +294,6 @@ int main(void)
 				}
 			}
 
-			//std::wcout << L"eu4 province name " << eu4_province_name << L"\n";
 			std::vector<clau_parser::UserType*> arr;
 
 			{
@@ -354,15 +350,11 @@ int main(void)
 					}
 				}
 				else {
-
 					std::cout << "eee\n";
-					//	return -2;
 				}
 			}
 
-
 			bool chk = false;
-
 
 			for (int i = 0; i < arr.size(); ++i) {
 				if (chk) {
@@ -371,22 +363,19 @@ int main(void)
 
 				clau_parser::UserType* eu3_province = arr[i];
 
-				//std::cout << "eu3 province " << eu3_province->GetName() << "\n";
-
 				eu3_eu4_provinces[eu3_province->GetName()] = eu4_province_name;
-				//break;
 			}
 			if (arr.empty()) {
-				//
+				//return -1;
 			}
 
 		}
 	}
 
 	{
-		for (auto& p : std::filesystem::directory_iterator("countries")) { // /countries/
+		for (auto& p : std::filesystem::directory_iterator("eu4/history/countries")) { // /countries/
 
-			//std::cout << p.path() << "\n";
+			std::cout << p.path() << "\n";
 
 			clau_parser::UserType eu4_country;
 
@@ -452,8 +441,9 @@ int main(void)
 
 						const std::string key = vec[q];
 
-						for (int i = 0; i < a.GetUserTypeListSize(); ++i) {
-							auto y = a.GetUserTypeList(i);
+						// 이전 코드 기준: GetUserTypeList(0)->GetUserTypeList(i)
+						for (int i = 0; i < a.GetUserTypeList(0)->GetUserTypeListSize(); ++i) {
+							auto y = a.GetUserTypeList(0)->GetUserTypeList(i);
 							for (int j = 0; j < y->GetItemListSize(); ++j) {
 								if (y->GetItemList(j).GetName() == "vic" &&
 									y->GetItemList(j).Get() == key) {
@@ -478,15 +468,13 @@ int main(void)
 					}
 				}
 				else {
+					clau_parser::LoadData::Save(eu4_country, std::wstring(L"output/history/countries/") + eu4_country_name + L".txt");
 
 					std::cout << "eee\n";
-					//	return -2;
 				}
 			}
 
-
 			bool chk = false;
-
 
 			for (int i = 0; i < arr.size(); ++i) {
 				if (chk) {
@@ -495,7 +483,7 @@ int main(void)
 
 				clau_parser::UserType* eu3_country = arr[i];
 
-				std::cout << "eu3 country [ "  << i << " ] " << eu3_country->GetName() << "\n";
+				std::cout << "eu3 country [ " << i << " ] " << eu3_country->GetName() << "\n";
 
 				{
 					eu4_country.RemoveUserTypeList();
@@ -520,8 +508,6 @@ int main(void)
 						else {
 							eu4_country.AddItem("capital", eu4_capital);
 						}
-
-						// fixed_capital?
 					}
 
 					std::cout << "eu4 country name ";
@@ -537,18 +523,13 @@ int main(void)
 						eu4_countries_primary_religion[eu4_country_name] = eu3_country->GetItemList(idx[0]).Get();
 						std::cout << "religion : " << eu4_countries_primary_religion[eu4_country_name] << "\n";
 					}
-					//clau_parser::LoadData::Save(eu4_province, std::wstring(L"history/provinces/") + eu4_province_name + L".txt");
 				}
-
-				//break;
 			}
 		}
 	}
 
 	{
-		for (auto& p : std::filesystem::directory_iterator("provinces")) { // /provinces/
-
-			//std::cout << p.path() << "\n";
+		for (auto& p : std::filesystem::directory_iterator("eu4/history/provinces")) { // /provinces/
 
 			clau_parser::UserType eu4_province;
 
@@ -578,7 +559,6 @@ int main(void)
 				}
 			}
 
-			//std::wcout << L"eu4 province name " << eu4_province_name << L"\n";
 			std::vector<clau_parser::UserType*> arr;
 
 			{
@@ -635,15 +615,11 @@ int main(void)
 					}
 				}
 				else {
-
 					std::cout << "eee\n";
-					//	return -2;
 				}
 			}
 
-
 			bool chk = false;
-
 
 			for (int i = 0; i < arr.size(); ++i) {
 				if (chk) {
@@ -653,64 +629,211 @@ int main(void)
 				clau_parser::UserType* eu3_province = arr[i];
 
 				std::cout << "eu3 province " << eu3_province->GetName() << "\n";
-
+				//std::cout << eu3_province->ToString() << "\n";
 				{
 					eu4_province.RemoveUserTypeList();
 
 					if (!eu4_province.GetItemIdx("is_city").empty()) {
-						eu4_province.SetItem("is_city", "no");
+						//eu4_province.SetItem("is_city", "no");
 					}
 
-					// owner, controller are eu4 contry tag.
-				//	std::string capital = GetEU4Country(Remove(eu3_province->GetItem("capital")[0].Get()), x, y);
+					// ---- EU3 건물 → EU4 base_tax / base_production / base_manpower 변환 ----
+			// 실제 buildings.txt 기준
+			// {tax, production, manpower}
 
-					/*
-					if (!eu3_province->GetItem("citysize").empty() && !eu3_province->GetItem("citysize").empty() && !eu3_province->GetItem("manpower").empty()) {
-						if (!eu4_province.GetItemIdx("base_tax").empty()) {
-							eu4_province.SetItem("base_tax", std::to_string((int)(std::stod(eu3_province->GetItem("base_tax")[0].Get()) + std::stod(eu3_province->GetItem("citysize")[0].Get()) / 50000 + 1)));
-						}
-						if (!eu4_province.GetItemIdx("base_production").empty()) {
-							eu4_province.SetItem("base_production", std::to_string((int)(std::stod(eu3_province->GetItem("citysize")[0].Get()) / 50000 + std::stod(eu3_province->GetItem("citysize")[0].Get()) / 50000 + 1)));
-						}
-						if (!eu4_province.GetItemIdx("base_manpower").empty()) {
-							eu4_province.SetItem("base_manpower", std::to_string((int)(std::stod(eu3_province->GetItem("manpower")[0].Get()) + std::stod(eu3_province->GetItem("citysize")[0].Get()) / 50000 + 1)));
-						}
-					}*/
+			// 계단식 구조 (최고 레벨만 세이브에 저장됨 → 하위 누적 적용)
+			// Government:   temple → courthouse → spy_agency → town_hall → college → cathedral
+			// Land:         armory → training_fields → barracks → regimental_camp → arsenal → conscription_center
+			// Naval:        dock → drydock → shipyard → grand_shipyard → naval_arsenal → naval_base
+			// Production:   constable → workshop → counting_house → treasury_office → mint → stock_exchange
+			// Trade:        marketplace → trade_depot → canal → road_network → post_office → customs_house
+			// Fort:         fort1 → fort2 → fort3 → fort4 → fort5 → fort6
+			// Manufactory:  refinery, wharf, weapons, textile, fine_arts_academy, university (독립 건물)
+			// One-per-country: tax_assessor, embassy, glorious_monument, march, grain_depot,
+			//                  royal_palace, war_college, admiralty (무시)
+
+					static const std::map<std::string, std::tuple<int, int, int>> building_bonus = {
+						// Government (세금 관련)
+						{ "temple",              {1, 0, 0} },
+						{ "courthouse",          {1, 0, 0} },
+						{ "spy_agency",          {1, 0, 0} },
+						{ "town_hall",           {2, 0, 0} },
+						{ "college",             {1, 0, 0} },
+						{ "cathedral",           {1, 0, 0} },
+						// Land (병력 관련)
+						{ "armory",              {0, 0, 1} },
+						{ "training_fields",     {0, 0, 1} },
+						{ "barracks",            {0, 0, 1} },
+						{ "regimental_camp",     {0, 0, 2} },
+						{ "arsenal",             {0, 0, 2} },
+						{ "conscription_center", {0, 0, 3} },
+						// Naval (생산 관련)
+						{ "dock",                {0, 1, 0} },
+						{ "drydock",             {0, 1, 0} },
+						{ "shipyard",            {0, 1, 0} },
+						{ "grand_shipyard",      {0, 1, 0} },
+						{ "naval_arsenal",       {0, 2, 0} },
+						{ "naval_base",          {0, 2, 0} },
+						// Production (세금+생산)
+						{ "constable",           {1, 0, 0} },
+						{ "workshop",            {1, 0, 0} },
+						{ "counting_house",      {0, 1, 0} },
+						{ "treasury_office",     {1, 0, 0} },
+						{ "mint",                {1, 0, 0} },
+						{ "stock_exchange",      {2, 0, 0} },
+						// Trade (생산)
+						{ "marketplace",         {0, 1, 0} },
+						{ "trade_depot",         {0, 1, 0} },
+						{ "canal",               {0, 1, 0} },
+						{ "road_network",        {0, 1, 0} },
+						{ "post_office",         {0, 1, 0} },
+						{ "customs_house",       {0, 1, 0} },
+						// Forts (병력)
+						{ "fort1",               {0, 0, 1} },
+						{ "fort2",               {0, 0, 1} },
+						{ "fort3",               {0, 0, 1} },
+						{ "fort4",               {0, 0, 1} },
+						{ "fort5",               {0, 0, 2} },
+						{ "fort6",               {0, 0, 2} },
+						// Manufactories (독립 건물 - 레벨 없음)
+						{ "refinery",            {0, 2, 0} },
+						{ "wharf",               {0, 2, 0} },
+						{ "weapons",             {0, 0, 2} },
+						{ "textile",             {0, 2, 0} },
+						{ "fine_arts_academy",   {1, 0, 0} },
+						{ "university",          {1, 1, 0} },
+					};
+
+					// 헬퍼 람다: 건물이 yes인지 확인
+					auto hasBuilding = [&](const std::string& name) -> bool {
+						auto items = eu3_province->GetItem(name);
+						return !items.empty() && items[0].Get() == "yes";
+						};
+
+					int bonus_tax = 0, bonus_prod = 0, bonus_man = 0;
+
+					// ── Government 계단식: temple → courthouse → spy_agency → town_hall → college → cathedral
+					if (hasBuilding("cathedral")) { bonus_tax += 1 + 1 + 1 + 2 + 1 + 1; }
+					else if (hasBuilding("college")) { bonus_tax += 1 + 1 + 1 + 2 + 1; }
+					else if (hasBuilding("town_hall")) { bonus_tax += 1 + 1 + 1 + 2; }
+					else if (hasBuilding("spy_agency")) { bonus_tax += 1 + 1 + 1; }
+					else if (hasBuilding("courthouse")) { bonus_tax += 1 + 1; }
+					else if (hasBuilding("temple")) { bonus_tax += 1; }
+
+					// ── Land 계단식: armory → training_fields → barracks → regimental_camp → arsenal → conscription_center
+					if (hasBuilding("conscription_center")) { bonus_man += 1 + 1 + 1 + 2 + 2 + 3; }
+					else if (hasBuilding("arsenal")) { bonus_man += 1 + 1 + 1 + 2 + 2; }
+					else if (hasBuilding("regimental_camp")) { bonus_man += 1 + 1 + 1 + 2; }
+					else if (hasBuilding("barracks")) { bonus_man += 1 + 1 + 1; }
+					else if (hasBuilding("training_fields")) { bonus_man += 1 + 1; }
+					else if (hasBuilding("armory")) { bonus_man += 1; }
+
+					// ── Naval 계단식: dock → drydock → shipyard → grand_shipyard → naval_arsenal → naval_base
+					if (hasBuilding("naval_base")) { bonus_prod += 1 + 1 + 1 + 1 + 2 + 2; }
+					else if (hasBuilding("naval_arsenal")) { bonus_prod += 1 + 1 + 1 + 1 + 2; }
+					else if (hasBuilding("grand_shipyard")) { bonus_prod += 1 + 1 + 1 + 1; }
+					else if (hasBuilding("shipyard")) { bonus_prod += 1 + 1 + 1; }
+					else if (hasBuilding("drydock")) { bonus_prod += 1 + 1; }
+					else if (hasBuilding("dock")) { bonus_prod += 1; }
+
+					// ── Production 계단식: constable → workshop → counting_house → treasury_office → mint → stock_exchange
+					if (hasBuilding("stock_exchange")) { bonus_tax += 1 + 1 + 0 + 1 + 1 + 2; bonus_prod += 0 + 0 + 1 + 0 + 0 + 0; }
+					else if (hasBuilding("mint")) { bonus_tax += 1 + 1 + 0 + 1 + 1;   bonus_prod += 0 + 0 + 1 + 0 + 0; }
+					else if (hasBuilding("treasury_office")) { bonus_tax += 1 + 1 + 0 + 1;     bonus_prod += 0 + 0 + 1 + 0; }
+					else if (hasBuilding("counting_house")) { bonus_tax += 1 + 1 + 0;       bonus_prod += 0 + 0 + 1; }
+					else if (hasBuilding("workshop")) { bonus_tax += 1 + 1; }
+					else if (hasBuilding("constable")) { bonus_tax += 1; }
+
+					// ── Trade 계단식: marketplace → trade_depot → canal → road_network → post_office → customs_house
+					if (hasBuilding("customs_house")) { bonus_prod += 1 + 1 + 1 + 1 + 1 + 1; }
+					else if (hasBuilding("post_office")) { bonus_prod += 1 + 1 + 1 + 1 + 1; }
+					else if (hasBuilding("road_network")) { bonus_prod += 1 + 1 + 1 + 1; }
+					else if (hasBuilding("canal")) { bonus_prod += 1 + 1 + 1; }
+					else if (hasBuilding("trade_depot")) { bonus_prod += 1 + 1; }
+					else if (hasBuilding("marketplace")) { bonus_prod += 1; }
+
+					// ── Fort 계단식: fort1 → fort2 → fort3 → fort4 → fort5 → fort6
+					if (hasBuilding("fort6")) { bonus_man += 1 + 1 + 1 + 1 + 2 + 2; }
+					else if (hasBuilding("fort5")) { bonus_man += 1 + 1 + 1 + 1 + 2; }
+					else if (hasBuilding("fort4")) { bonus_man += 1 + 1 + 1 + 1; }
+					else if (hasBuilding("fort3")) { bonus_man += 1 + 1 + 1; }
+					else if (hasBuilding("fort2")) { bonus_man += 1 + 1; }
+					else if (hasBuilding("fort1")) { bonus_man += 1; }
+
+					// ── Manufactories (독립 건물 - 계단식 아님)
+					if (hasBuilding("refinery")) { bonus_prod += 2; }
+					if (hasBuilding("wharf")) { bonus_prod += 2; }
+					if (hasBuilding("weapons")) { bonus_man += 2; }
+					if (hasBuilding("textile")) { bonus_prod += 2; }
+					if (hasBuilding("fine_arts_academy")) { bonus_tax += 1; }
+					if (hasBuilding("university")) { bonus_tax += 1; bonus_prod += 1; }
+
+					// base_tax
+					{
+						int cur = 1;
+						if (!eu4_province.GetItem("base_tax").empty())
+							cur = std::stoi(eu4_province.GetItem("base_tax")[0].Get());
+						int val = std::max(1, cur + bonus_tax);
+						if (eu4_province.GetItem("base_tax").empty())
+							eu4_province.AddItem("base_tax", std::to_string(val));
+						else
+							eu4_province.SetItem("base_tax", std::to_string(val));
+					}
+					// base_production
+					{
+						int cur = 1;
+						if (!eu4_province.GetItem("base_production").empty())
+							cur = std::stoi(eu4_province.GetItem("base_production")[0].Get());
+						int val = std::max(1, cur + bonus_prod);
+						if (eu4_province.GetItem("base_production").empty())
+							eu4_province.AddItem("base_production", std::to_string(val));
+						else
+							eu4_province.SetItem("base_production", std::to_string(val));
+					}
+					// base_manpower
+					{
+						int cur = 1;
+						if (!eu4_province.GetItem("base_manpower").empty())
+							cur = std::stoi(eu4_province.GetItem("base_manpower")[0].Get());
+						int val = std::max(1, cur + bonus_man);
+						if (eu4_province.GetItem("base_manpower").empty())
+							eu4_province.AddItem("base_manpower", std::to_string(val));
+						else
+							eu4_province.SetItem("base_manpower", std::to_string(val));
+					}
+					// ---- 건물 변환 끝 ----
+
 					std::wstring _owner; std::string owner;
 					if (!eu3_province->GetItemIdx("owner").empty()) {
 
-						//	eu4_province.AddItem("pass", "true");
-
-
+						std::cout << Remove(eu3_province->GetItem("owner")[0].Get()) << "\n";
 						owner = GetEU4Country(Remove(eu3_province->GetItem("owner")[0].Get()), eu3_vic_ct, y);
 						for (int i = 0; i < owner.size(); ++i) {
 							_owner.push_back(owner[i]);
 						}
-						std::cout << owner << " | ";
+						std::cout << owner << " " << owner.empty() << " | ";
 						if (owner.empty() == false) {
 							if (eu4_province.GetItemIdx("owner").empty()) {
 								eu4_province.AddItem("owner", "");
-							}count++;
-
+							}
+							count++;
 							chk = true;
 
-							eu4_province.GetItemList(eu4_province.GetItemIdx("owner")[0]).Set(0, owner);
-
-							eu4_province.AddUserTypeItem(clau_parser::UserType("1510.1.1"));
-
-							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", owner);
-							//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_tax", "3");
-							//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_production", "3");
-							//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_manpower", "3");
-
-
-							eu4_province.AddItem("add_core", owner); // add_territorial_core
+							eu4_province.AddItem("add_core", owner);
 							if (eu4_province.GetItem("is_city").empty()) {
 								eu4_province.AddItem("is_city", "yes");
 							}
 							else {
 								eu4_province.SetItem("is_city", "yes");
 							}
+
+							eu4_province.GetItemList(eu4_province.GetItemIdx("owner")[0]).Set(0, owner);
+
+							eu4_province.AddUserTypeItem(clau_parser::UserType("1592.1.1"));
+
+							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", owner);
+
+							
 						}
 						else {
 							std::cout << "chked...1\n";
@@ -734,16 +857,13 @@ int main(void)
 							}
 						}
 					}
-					//eu4_province.GetItemList(eu4_province.GetItemIdx("capital")[0]).Set(0, capital);
 
 					eu4_province.AddItem("discovered_by", "eastern");
 					eu4_province.AddItem("discovered_by", "western");
 					eu4_province.AddItem("discovered_by", "muslim");
 					eu4_province.AddItem("discovered_by", "ottoman");
 
-
-					eu4_province.SetName(std::to_string(std::stoi(eu4_province_name))); // ?
-
+					eu4_province.SetName(std::to_string(std::stoi(eu4_province_name)));
 
 					if (eu3_province->GetItem("religion").empty() == false) {
 						std::string eu4_religion;
@@ -753,7 +873,6 @@ int main(void)
 
 						bool pass = false;
 						for (int i = 0; i < eu3->GetUserTypeListSize(); ++i) {
-							// link = { 
 							auto x = eu3->GetUserTypeList(i)->GetItem("eu3");
 							for (int j = 0; j < x.size(); ++j) {
 								if (x[j].Get() == eu3_religion) {
@@ -785,18 +904,16 @@ int main(void)
 							}
 						}
 
-						if (_owner.empty() == false) { //if ((!pass && _owner.empty() == false) || (eu4_culture == "" && _owner.empty() == false)) {
+						if (_owner.empty() == false) {
 							std::wcout << "pass " << pass << " owner " << _owner << "\n";
 							eu4_religion = eu4_countries_primary_religion[_owner];
 							if (eu4_religion == "") {
 								std::cout << "empty ... \n";
-								exit(-1);
+								//exit(-1);
 							}
 							std::cout << "religion " << eu4_religion << "\n";
 						}
 
-
-						//std::cout << "eu4_religion : " << eu4_religion << "\n";
 						if (eu4_province.GetItem("religion").empty()) {
 							eu4_province.AddItem("religion", eu4_religion);
 						}
@@ -816,7 +933,6 @@ int main(void)
 
 						bool pass = false;
 						for (int i = 0; i < eu3->GetUserTypeListSize(); ++i) {
-							// link = { 
 							auto x = eu3->GetUserTypeList(i)->GetItem("eu3");
 							for (int j = 0; j < x.size(); ++j) {
 								if (x[j].Get() == eu3_culture) {
@@ -847,9 +963,7 @@ int main(void)
 									}
 
 									eu4_culture = y.Get();
-
 									pass = true;
-									// last one?
 								}
 							}
 							if (pass) {
@@ -858,15 +972,14 @@ int main(void)
 						}
 
 						std::cout << eu4_culture << "\n";
-						if (_owner.empty() == false) { //if ((!pass && _owner.empty() == false) || (eu4_culture == "" && _owner.empty() == false)) {
+						if (_owner.empty() == false) {
 							std::wcout << "pass " << pass << " owner " << _owner << "\n";
 							eu4_culture = eu4_countries_primary_culture[_owner];
 
 							if (eu4_culture == "") {
 								std::cout << "chk";
-								exit(-1);
+								//exit(-1);
 							}
-
 
 							std::cout << "culture " << eu4_culture << "\n";
 						}
@@ -890,15 +1003,10 @@ int main(void)
 						}
 					}
 
-					
-
 					eu4_provinces[eu4_province_name] = eu4_province;
-					//clau_parser::LoadData::Save(eu4_province, std::wstring(L"history/provinces/") + eu4_province_name + L".txt");
 				}
 
-
 				eu3_eu4_provinces[eu3_province->GetName()] = eu4_province_name;
-				//break;
 			}
 			if (arr.empty()) {
 				//
@@ -907,6 +1015,7 @@ int main(void)
 		}
 	}
 
+	std::cout << "area " << area.GetIListSize() << "\n";
 	for (int i = 0; i < area.GetUserTypeListSize(); ++i) {
 		auto x = area.GetUserTypeList(i);
 
@@ -914,16 +1023,14 @@ int main(void)
 
 		for (int j = 0; j < x->GetItemListSize(); ++j) {
 			auto y = x->GetItemList(j);
-			
-			auto& eu4_province = eu4_provinces[std::to_wstring(std::stoi(y.Get()))]; // eu4_province
-			
-			// 
+
+			auto& eu4_province = eu4_provinces[std::to_wstring(std::stoi(y.Get()))];
+
 			if (eu4_province.GetItem("owner").empty()) {
 				continue;
 			}
 
 			std::cout << " expand... owner [ " << j << " ] " << eu4_province.GetItem("owner")[0].Get() << "\n";
-			// count number of owner`s provinces in this area.
 			if (_map.find(eu4_province.GetItem("owner")[0].Get()) != _map.end()) {
 				std::get<0>(_map[eu4_province.GetItem("owner")[0].Get()])++;
 			}
@@ -931,7 +1038,7 @@ int main(void)
 				std::string religion, culture;
 
 				std::string owner = eu4_province.GetItem("owner")[0].Get();
-				std::wstring _owner; 
+				std::wstring _owner;
 				_owner.append(owner.begin(), owner.end());
 				std::wcout << _owner << "\n";
 				if (eu4_province.GetItem("religion").empty() == false) {
@@ -941,18 +1048,14 @@ int main(void)
 					culture = eu4_province.GetItem("culture")[0].Get();
 				}
 
-				if (_owner.empty() == false) { //if ((!pass && _owner.empty() == false) || (eu4_culture == "" && _owner.empty() == false)) {
+				if (_owner.empty() == false) {
 					if (eu4_countries_primary_religion.find(_owner) != eu4_countries_primary_religion.end()) {
 						religion = eu4_countries_primary_religion[_owner];
 						std::cout << "chkddd";
 					}
-					else {
-						//exit(-1);
-					}
 					std::cout << "religion " << religion << "\n";
 				}
-				if (_owner.empty() == false) { //if ((!pass && _owner.empty() == false) || (eu4_culture == "" && _owner.empty() == false)) {
-					
+				if (_owner.empty() == false) {
 					if (eu4_countries_primary_culture.find(_owner) != eu4_countries_primary_culture.end()) {
 						culture = eu4_countries_primary_culture[_owner];
 					}
@@ -968,9 +1071,8 @@ int main(void)
 		std::string winner_culture;
 		int val = -1;
 
-		// 모든 프로빈스의 중요도(가치?)를 동등하게 생각해서 // 개수가 많은 쪽이 모든 province를 가진다.?
 		for (const auto& _ : _map) {
-			if (val < std::get<0>(_.second)) { 
+			if (val < std::get<0>(_.second)) {
 				val = std::get<0>(_.second);
 				winner = _.first;
 				winner_religion = std::get<1>(_.second);
@@ -978,34 +1080,27 @@ int main(void)
 			}
 		}
 
-		if (val != -1) { // if not 'totally empty area'.
-			
-			// find empty province in this area.
+		if (val != -1) {
 			for (int j = 0; j < x->GetItemListSize(); ++j) {
 				std::cout << "win " << winner << " " << winner_culture << "\n";
 
 				auto y = x->GetItemList(j);
 
-				auto& eu4_province = eu4_provinces[std::to_wstring(std::stoi(y.Get()))]; // eu4_province
+				auto& eu4_province = eu4_provinces[std::to_wstring(std::stoi(y.Get()))];
 
 				if (eu4_province.GetItem("owner").empty()) {
-					
-					eu4_province.AddUserTypeItem(clau_parser::UserType("1510.1.1"));
+
+					eu4_province.AddUserTypeItem(clau_parser::UserType("1592.1.1"));
 
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", winner);
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("controller", winner);
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("religion", winner_religion);
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("culture", winner_culture);
 
-					//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_tax", "3");
-					//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_production", "3");
-					//eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("base_manpower", "3");
-
-
 					eu4_province.AddItem("owner", winner);
-					eu4_province.AddItem("add_core", winner); // add_territorial_core
+					eu4_province.AddItem("add_core", winner);
 					count++;
-					
+
 					if (eu4_province.GetItem("is_city").empty()) {
 						eu4_province.AddItem("is_city", "yes");
 					}
@@ -1032,7 +1127,7 @@ int main(void)
 					exit(-3);
 				}
 				if (winner_culture.empty()) {
-					exit(-1);
+					//exit(-1);
 				}
 				if (eu4_province.GetItem("culture").empty()) {
 					eu4_province.AddItem("culture", winner_culture);
@@ -1041,25 +1136,11 @@ int main(void)
 					eu4_province.SetItem("culture", winner_culture);
 				}
 
-				eu4_province.AddItem("discovered_by", "eastern");
-				eu4_province.AddItem("discovered_by", "western");
-				eu4_province.AddItem("discovered_by", "muslim");
-				eu4_province.AddItem("discovered_by", "ottoman");
-
+				// discovered_by는 여기서 추가하지 않음 (province 루프에서 이미 추가됨)
 			}
 		}
 		else {
 			std::cout << "chk --3" << "\n";
-			for (int j = 0; j < x->GetItemListSize(); ++j) {
-				auto y = x->GetItemList(j);
-
-				auto& eu4_province = eu4_provinces[std::to_wstring(std::stoi(y.Get()))]; // eu4_province
-
-				eu4_province.AddItem("discovered_by", "eastern");
-				eu4_province.AddItem("discovered_by", "western");
-				eu4_province.AddItem("discovered_by", "muslim");
-				eu4_province.AddItem("discovered_by", "ottoman");
-			}
 		}
 	}
 
@@ -1068,16 +1149,11 @@ int main(void)
 	for (auto& x : eu4_provinces) {
 		auto eu4_province = x.second;
 		auto eu4_province_name = x.first;
-		
 
-		clau_parser::LoadData::Save(eu4_province, std::wstring(L"history/provinces/") + eu4_province_name + L".txt");
+		clau_parser::LoadData::Save(eu4_province, std::wstring(L"output/history/provinces/") + eu4_province_name + L".txt");
 	}
 
-	std::cout << "\n" << "count " << count << "\n";
-
-	//
 	{
-		
 		{
 			std::cout << eu4_countries.size() << "\n";
 
@@ -1085,14 +1161,12 @@ int main(void)
 				auto eu4_country = x.second;
 				auto eu4_country_name = x.first;
 
-
-				clau_parser::LoadData::Save(eu4_country, std::wstring(L"history/countries/") + eu4_country_name + L".txt");
+				clau_parser::LoadData::Save(eu4_country, std::wstring(L"output/history/countries/") + eu4_country_name + L".txt");
 			}
 
 			std::cout << "\n" << "count " << count << "\n";
 		}
 	}
-
+	std::cout << "ends";
 	return 0;
 }
-
