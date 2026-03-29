@@ -261,6 +261,21 @@ int main(void)
 	std::map<std::wstring, std::string> eu4_countries_primary_culture; // primary_culture
 	std::map<std::wstring, std::string> eu4_countries_primary_religion; // primary_religion
 
+
+
+	// EU3 테크 레벨 (국가별)
+	std::map<std::wstring, int> eu4_countries_land_tech;
+	std::map<std::wstring, int> eu4_countries_naval_tech;
+	std::map<std::wstring, int> eu4_countries_trade_tech;
+	std::map<std::wstring, int> eu4_countries_production_tech;
+	std::map<std::wstring, int> eu4_countries_government_tech;
+
+	int max_land = 72;
+	int max_naval = 72;
+	int max_trade = 72;
+	int max_prod = 72;
+	int max_gov = 72;
+
 	{
 		for (auto& p : std::filesystem::directory_iterator("eu4/history/provinces")) { // /provinces/
 
@@ -522,6 +537,35 @@ int main(void)
 					if (auto idx = eu3_country->GetItemIdx("religion"); !idx.empty()) {
 						eu4_countries_primary_religion[eu4_country_name] = eu3_country->GetItemList(idx[0]).Get();
 						std::cout << "religion : " << eu4_countries_primary_religion[eu4_country_name] << "\n";
+					}
+
+					// EU3 테크 레벨 읽기
+					// technology = { land_tech={레벨 투자} naval_tech={레벨 투자} ... }
+					auto tech_blocks = eu3_country->GetUserTypeItem("technology");
+					if (!tech_blocks.empty()) {
+						auto* tech = tech_blocks[0];
+
+						auto readTech = [&](const std::string& name) -> int {
+							auto block = tech->GetUserTypeItem(name);
+							if (!block.empty() && block[0]->GetIListSize() > 0) {
+								try { return std::stoi(block[0]->GetItemList(0).Get()); }
+								catch (...) {}
+							}
+							return 0;
+							};
+
+						auto chk = [&](const int tech, int& max)->int {
+							if (tech > max) {
+								max = tech;
+							}
+							return tech;
+							};
+
+						eu4_countries_land_tech[eu4_country_name] = chk(readTech("land_tech"), max_land);
+						eu4_countries_naval_tech[eu4_country_name] = chk(readTech("naval_tech"), max_naval);
+						eu4_countries_trade_tech[eu4_country_name] = chk(readTech("trade_tech"), max_trade);
+						eu4_countries_production_tech[eu4_country_name] = chk(readTech("production_tech"), max_prod);
+						eu4_countries_government_tech[eu4_country_name] = chk(readTech("government_tech"), max_gov);
 					}
 				}
 			}
@@ -801,6 +845,7 @@ int main(void)
 						else
 							eu4_province.SetItem("base_manpower", std::to_string(val));
 					}
+
 					// ---- 건물 변환 끝 ----
 
 					std::wstring _owner; std::string owner;
@@ -833,12 +878,53 @@ int main(void)
 
 							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", owner);
 
-							
+
+
+							// ---- 테크 레벨 가중치 적용 (최대 72 기준) ----
+							// owner의 테크 레벨을 가져와서 각 수치에 곱함
+							{
+								constexpr double MAX_TECH = 72.0;
+
+								auto applyTechMul = [&](const std::string& itemName,
+									std::map<std::wstring, int>& techMap, int max_tech) {
+										auto it = techMap.find(_owner);
+										if (it == techMap.end()) return;
+										double mul = (double)it->second / max_tech;
+										if (eu4_province.GetItem(itemName).empty()) return;
+										int cur = std::stoi(eu4_province.GetItem(itemName)[0].Get());
+										int val = std::max(1, (int)std::round(cur * mul * mul));
+										eu4_province.SetItem(itemName, std::to_string(val));
+									};
+
+								applyTechMul("base_tax", eu4_countries_government_tech, max_gov);
+								applyTechMul("base_manpower", eu4_countries_land_tech, max_land);
+
+								// base_production은 production_tech, trade_tech, naval_tech 각각 곱한 평균
+								{
+									auto getTech = [&](std::map<std::wstring, int>& techMap) -> int {
+										auto it = techMap.find(_owner);
+										return (it != techMap.end()) ? it->second : 0;
+										};
+
+									if (!eu4_province.GetItem("base_production").empty()) {
+										int cur = std::stoi(eu4_province.GetItem("base_production")[0].Get());
+										double prod = getTech(eu4_countries_production_tech);
+										double trade = getTech(eu4_countries_trade_tech);
+										double naval = getTech(eu4_countries_naval_tech);
+										double max_sum = (max_prod + max_trade + max_naval);
+										double avg_mul = (prod + trade + naval) / max_sum;
+										int val = std::max(1, (int)std::round(cur * avg_mul * avg_mul));
+										eu4_province.SetItem("base_production", std::to_string(val));
+									}
+								}
+							}
+							// ---- 테크 가중치 끝 ----
 						}
 						else {
 							std::cout << "chked...1\n";
 						}
 					}
+					
 
 					if (!eu3_province->GetItemIdx("controller").empty()) {
 						std::string controller = GetEU4Country(Remove(eu3_province->GetItem("controller")[0].Get()), eu3_vic_ct, y);
