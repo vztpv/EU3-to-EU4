@@ -603,6 +603,9 @@ int main(void)
 				}
 			}
 
+
+			eu4_provinces[eu4_province_name] = eu4_province;
+
 			std::vector<clau_parser::UserType*> arr;
 
 			{
@@ -874,7 +877,7 @@ int main(void)
 
 							eu4_province.GetItemList(eu4_province.GetItemIdx("owner")[0]).Set(0, owner);
 
-							eu4_province.AddUserTypeItem(clau_parser::UserType("1592.1.1"));
+							eu4_province.AddUserTypeItem(clau_parser::UserType("1520.1.1"));
 
 							eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", owner);
 
@@ -896,7 +899,7 @@ int main(void)
 										eu4_province.SetItem(itemName, std::to_string(val));
 									};
 
-								applyTechMul("base_tax", eu4_countries_government_tech, max_gov);
+								applyTechMul("base_tax", eu4_countries_production_tech, max_prod);
 								applyTechMul("base_manpower", eu4_countries_land_tech, max_land);
 
 								// base_productionÀº production_tech, trade_tech, naval_tech °¢°¢ °öÇÑ Æò±Õ
@@ -1176,7 +1179,7 @@ int main(void)
 
 				if (eu4_province.GetItem("owner").empty()) {
 
-					eu4_province.AddUserTypeItem(clau_parser::UserType("1592.1.1"));
+					eu4_province.AddUserTypeItem(clau_parser::UserType("1520.1.1"));
 
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("owner", winner);
 					eu4_province.GetUserTypeList(eu4_province.GetUserTypeListSize() - 1)->AddItem("controller", winner);
@@ -1236,6 +1239,10 @@ int main(void)
 		auto eu4_province = x.second;
 		auto eu4_province_name = x.first;
 
+		std::wcout << eu4_province_name; std::cout << "\n";
+		if (eu4_province_name == L"2900") {
+			std::cout << "chk";
+		}
 		clau_parser::LoadData::Save(eu4_province, std::wstring(L"output/history/provinces/") + eu4_province_name + L".txt");
 	}
 
